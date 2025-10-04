@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Allergen-Friendly Menu</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+      color: #f0f0f0;
+      min-height: 100vh;
+      padding: 15px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 6px 25px rgba(220, 20, 60, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    
+    h1 {
+      color: #fff;
+      margin-bottom: 0.75rem;
+      font-size: 1.8rem;
+      font-weight: 700;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      position: relative;
+      z-index: 1;
+      line-height: 1.3;
+    }
+    
+    .subtitle {
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 1rem;
+      position: relative;
+      z-index: 1;
+      line-height: 1.5;
+    }
+    
+    #search-box {
+      display: block;
+      margin: 1.5rem auto;
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+      border: 2px solid #dc143c;
+      width: 100%;
+      max-width: 720px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      font-size: 1rem;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+    
+    #search-box:focus {
+      outline: none;
+      border-color: #ff1744;
+      box-shadow: 0 0 20px rgba(220, 20, 60, 0.5);
+      background: rgba(255, 255, 255, 0.08);
+    }
+    
+    #search-box::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin: 1.5rem 0;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.1rem;
+      border-radius: 10px;
+      border: 2px solid #dc143c;
+      background: rgba(220, 20, 60, 0.1);
+      color: #ff6b8a;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      white-space: nowrap;
+    }
+    
+    .btn:hover {
+      background: #dc143c;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(220, 20, 60, 0.4);
+    }
+    
+    .filter-active {
+      background: linear-gradient(135deg, #dc143c 0%, #ff1744 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(220, 20, 60, 0.6);
+      border-color: #ff1744;
+    }
+    
+    #menu-display {
+      margin-top: 1.5rem;
+      background: linear-gradient(135deg, rgba(220, 20, 60, 0.08) 0%, rgba(0, 0, 0, 0.4) 100%);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 2px solid rgba(220, 20, 60, 0.3);
+      min-height: 200px;
+      backdrop-filter: blur(10px);
+    }
+    
+    #menu-display > p {
+      text-align: center;
+      color: #999;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    
+    .rest-header {
+      font-size: 1.8rem;
+      color: #dc143c;
+      margin-bottom: 1rem;
+      margin-top: 1.5rem;
+      font-weight: 700;
+      text-shadow: 0 2px 10px rgba(220, 20, 60, 0.3);
+      padding-bottom: 0.5rem;
+      border-bottom: 3px solid #dc143c;
+    }
+    
+    .category-title {
+      font-size: 1.15rem;
+      color: #ff6b8a;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 107, 138, 0.3);
+    }
+    
+    .menu-item {
+      background: linear-gradient(135deg, rgba(220, 20, 60, 0.05) 0%, rgba(0, 0, 0, 0.3) 100%);
+      padding: 1.25rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(220, 20, 60, 0.2);
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .menu-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(220, 20, 60, 0.3);
+      border-color: #dc143c;
+    }
+    
+    .item-name {
+      font-weight: 700;
+      color: #fff;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .item-desc {
+      color: #d0d0d0;
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    
+    .allergen-tag {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      margin: 0.5rem 0.4rem 0 0;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%);
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(220, 20, 60, 0.3);
+      transition: all 0.2s ease;
+    }
+    
+    .allergen-tag:hover {
+      transform: scale(1.05);
+      box-shadow: 0 3px 12px rgba(220, 20, 60, 0.5);
+    }
+    
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      color: #999;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      border-top: 2px solid rgba(220, 20, 60, 0.3);
+    }
+    
+    footer small {
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    
+    .note {
+      color: #ffb3c1;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: rgba(220, 20, 60, 0.1);
+      border-radius: 8px;
+      border-left: 3px solid #dc143c;
+      line-height: 1.5;
+    }
+    
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .subtitle {
+        font-size: 0.9rem;
+      }
+      
+      #search-box {
+        padding: 0.9rem 1rem;
+        font-size: 0.95rem;
+      }
+      
+      .btn {
+        padding: 0.65rem 0.9rem;
+        font-size: 0.85rem;
+      }
+      
+      .rest-header {
+        font-size: 1.5rem;
+      }
+      
+      .category-title {
+        font-size: 1rem;
+      }
+      
+      .menu-item {
+        padding: 1rem;
+      }
+      
+      .item-name {
+        font-size: 1rem;
+      }
+      
+      .item-desc {
+        font-size: 0.9rem;
+      }
+      
+      #menu-display {
+        padding: 1rem;
+      }
+      
+      header {
+        padding: 1.5rem 1rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.3rem;
+      }
+      
+      .btn {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      
+      .rest-header {
+        font-size: 1.3rem;
+      }
+      
+      .allergen-tag {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1> Merv's Allergen Menus </h1>
+      <p class="subtitle">Updated menus: full lists of items you can order under both filters. Confirm locally before ordering.</p>
+    </header>
+
+    <input id="search-box" placeholder="Search menus (type 2+ letters): e.g. 'chicken', 'salad', 'lemonade'..." onkeyup="searchMenu()" />
+
+    <nav id="restaurant-buttons">
+      <button class="btn" onclick="showMenu('chipotle')">Chipotle</button>
+      <button class="btn" onclick="showMenu('subway')">Subway</button>
+      <button class="btn" onclick="showMenu('chick-fil-a')">Chick-fil-A</button>
+      <button class="btn" onclick="showMenu('panera')">Panera Bread</button>
+      <button class="btn" onclick="showMenu('starbucks')">Starbucks</button>
+      <button class="btn" onclick="showMenu('olive-garden')">Olive Garden</button>
+      <button class="btn" onclick="showMenu('mcdonalds')">McDonald's</button>
+      <button class="btn" onclick="showMenu('canes')">Raising Cane's</button>
+      <button class="btn" onclick="showMenu('arbys')">Arby's</button>
+      <button class="btn" onclick="showMenu('taco-bell')">Taco Bell</button>
+      <button class="btn" onclick="showMenu('wendys')">Wendy's</button>
+      <button class="btn" onclick="showMenu('five-guys')">Five Guys</button>
+      <button class="btn" onclick="showMenu('panda-express')">Panda Express</button>
+      <button class="btn" onclick="showMenu('pizza-hut')">Pizza Hut</button>
+      <button class="btn" onclick="showMenu('outback')">Outback Steakhouse</button>
+      <button class="btn" onclick="showMenu('red-lobster')">Red Lobster</button>
+      <button class="btn" onclick="showMenu('fuzzys')">Fuzzy's Taco Shop</button>
+    </nav>
+
+    <nav style="text-align:center;margin-bottom:1.5rem;">
+      <button id="filter-wd" class="btn filter-active" onclick="setFilter('wheat-dairy', this)">Wheat & Dairy Free</button>
+      <button id="filter-all" class="btn" onclick="setFilter('all-allergens', this)">Gluten, Dairy, Corn, Nut & Soy Free</button>
+    </nav>
+
+    <div id="menu-display">
+      <p>Select a restaurant or search across all menus (2+ characters). Menus reflect items commonly available in OKC/Moore locations — but confirm with staff.</p>
+    </div>
+
+    <footer>
+      <small>Tip: Items marked with "omit X" are safe only when asked to remove that component. Always tell staff about your allergens.</small>
+    </footer>
+  </div>
+
+  <script>
+    // Keep state
+    let currentFilter = 'wheat-dairy';
+    let currentRestaurant = null;
+
+    function setFilter(filter, btn) {
+      currentFilter = filter;
+      document.getElementById('filter-wd').classList.remove('filter-active');
+      document.getElementById('filter-all').classList.remove('filter-active');
+      if (btn) btn.classList.add('filter-active');
+
+      // refresh view
+      if (document.getElementById('search-box').value.trim().length >= 2) searchMenu();
+      else if (currentRestaurant) showMenu(currentRestaurant);
+      else document.getElementById('menu-display').innerHTML = '<p>Select a Allergen Filter</p>';
+    }
+
+    const menus = {
+      "chipotle": {
+        "wheat-dairy": {
+          "Bowls & Salads": [
+            { name:"Chicken Bowl (no tortilla)", desc:"White or brown rice, black or pinto beans, chicken, pico de gallo, romaine — omit cheese & sour cream", tags:["Wheat Free","Dairy Free"] },
+            { name:"Steak Bowl (no tortilla)", desc:"Rice, beans, steak, salsa, romaine — omit cheese/sour cream", tags:["Wheat Free","Dairy Free"] },
+            { name:"Carnitas Bowl (no tortilla)", desc:"Rice, beans, carnitas, salsa, romaine", tags:["Wheat Free","Dairy Free"] },
+            { name:"Veggie Bowl (no cheese)", desc:"Rice, beans, fajita veggies, tomato salsa, lettuce", tags:["Wheat Free","Dairy Free","Vegan"] },
+            { name:"Salad (Romaine base, no tortilla)", desc:"Choose protein and salsas, omit cheese/sour cream", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Proteins": [
+            { name:"Chicken (plain)", desc:"Plain grilled chicken", tags:["Wheat Free","Dairy Free"] },
+            { name:"Steak (plain)", desc:"Grilled steak", tags:["Wheat Free","Dairy Free"] },
+            { name:"Carnitas", desc:"Braised pork", tags:["Wheat Free","Dairy Free"] },
+            { name:"Barbacoa", desc:"Shredded beef", tags:["Wheat Free","Dairy Free"] },
+            { name:"Sofritas", desc:"Braised tofu (contains soy — OK for wheat-dairy filter only)", tags:["Wheat Free","Dairy Free","Vegan"] }
+          ],
+          "Toppings": [
+            { name:"Pico de Gallo", desc:"Tomato, onion, cilantro", tags:["Wheat Free","Dairy Free","Vegan"] },
+            { name:"Guacamole", desc:"Avocado, lime, salt", tags:["Wheat Free","Dairy Free","Vegan"] },
+            { name:"Fajita Veggies", desc:"Sauteed peppers & onions", tags:["Wheat Free","Dairy Free","Vegan"] },
+            { name:"Romaine Lettuce", desc:"Shredded romaine", tags:["Wheat Free","Dairy Free","Vegan"] }
+          ],
+          "Drinks": [
+            { name:"Bottled Water", desc:"Water", tags:["Wheat Free","Dairy Free"] },
+            { name:"Fountain Sodas (caffeine-free options)", desc:"Sprite, Fanta where available", tags:["Wheat Free","Dairy Free"] }
+          ]
+        },
+        "all-allergens": {
+          "Bowls & Salads": [
+            { name:"Chicken Bowl (modified)", desc:"Rice, beans, plain chicken, romaine, pico — request no corn salsas/no marinades", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Steak Bowl (modified)", desc:"Rice, beans, plain steak, romaine, pico", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Salad (modified)", desc:"Romaine, protein, pico — no cheese/tortilla/corn salsa", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Proteins": [
+            { name:"Plain Chicken (no marinade)", desc:"Request plain grilled chicken with no added marinades", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Plain Steak (no seasoning)", desc:"Request plain grilled steak", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Toppings": [
+            { name:"Romaine Lettuce", desc:"Shredded romaine", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Pico de Gallo (no corn)", desc:"Request pico only if corn salsa normally included", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Drinks": [
+            { name:"Water", desc:"Bottled water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ]
+        }
+      },
+
+      "subway": {
+        "wheat-dairy": {
+          "Salads": [
+            { name:"Turkey Breast Salad (no cheese/no dressing)", desc:"Turkey, lettuce, tomato, cucumber, peppers — omit cheese/dressing", tags:["Wheat Free","Dairy Free"] },
+            { name:"Roast Beef Salad (no cheese/no dressing)", desc:"Roast beef with greens & veggies", tags:["Wheat Free","Dairy Free"] },
+            { name:"Veggie Delite Salad (no cheese/no dressing)", desc:"Assorted vegetables", tags:["Wheat Free","Dairy Free","Vegan"] }
+          ],
+          "Drinks": [
+            { name:"Bottled Water", desc:"Water", tags:["Wheat Free","Dairy Free"] },
+            { name:"Non-caffeinated sodas / juices", desc:"Sprite, Fanta, bottled juices", tags:["Wheat Free","Dairy Free"] }
+          ]
+        },
+        "all-allergens": {
+          "Salads": [
+            { name:"Turkey Salad (plain)", desc:"Turkey & greens — request no dressing", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Roast Beef Salad (plain)", desc:"Roast beef & veggies — request no dressing", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Drinks":[
+            { name:"Water", desc:"Bottled water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ]
+        }
+      },
+
+      "chick-fil-a": {
+        "wheat-dairy": {
+          "Salads & Entrées": [
+            { name:"Grilled Market Salad (no cheese/omit nuts)", desc:"Grilled chicken, mixed greens, fruit — request removal of nut garnish & cheese", tags:["Wheat Free","Dairy Free"] },
+            { name:"Cobb Salad (no cheese)", desc:"Grilled nuggets, egg, bacon — omit cheese", tags:["Wheat Free","Dairy Free"] },
+            { name:"Grilled Nuggets (al-a-carte)", desc:"Plain grilled chicken pieces — request without sauce", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Sides": [
+            { name:"Waffle Potato Fries", desc:"Confirm local seasoning — typically wheat/dairy-free", tags:["Wheat Free","Dairy Free"] },
+            { name:"Fruit Cup", desc:"Seasonal fruit", tags:["Wheat Free","Dairy Free","Vegan"] }
+          ],
+          "Drinks": [
+            { name:"Chick-fil-A Lemonade", desc:"Classic lemonade (caffeine-free)", tags:["Wheat Free","Dairy Free","Caffeine Free"] },
+            { name:"Bottled Water", desc:"Water", tags:["Wheat Free","Dairy Free"] }
+          ]
+        },
+        "all-allergens": {
+          "Entrées & Sides": [
+            { name:"Grilled Nuggets (plain)", desc:"Plain grilled chicken — no sauce", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Fruit Cup", desc:"Seasonal fruit", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Drinks":[
+            { name:"Lemonade", desc:"Classic lemonade — caffeine-free", tags:["GF","DF","Corn Free","Nut Free","Soy Free","Caffeine Free"] },
+            { name:"Water", desc:"Bottled water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ]
+        }
+      },
+
+      "panera": {
+        "wheat-dairy": {
+          "Salads & Bowls": [
+            { name:"Greek Salad (no feta/no croutons)", desc:"Greens, olives, tomatoes, cucumbers — omit feta and croutons", tags:["Wheat Free","Dairy Free"] },
+            { name:"Mediterranean Bowl (no cheese)", desc:"If available — request no cheese/dressings with dairy", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Soups (confirm dairy-free base locally)": [
+            { name:"Lentil Soup (if dairy-free)", desc:"Lentil & vegetable soup — verify dairy-free base", tags:["Wheat Free","Dairy Free","Vegan"] }
+          ],
+          "Drinks": [
+            { name:"Bottled Water", desc:"Water", tags:["Wheat Free","Dairy Free"] }
+          ]
+        },
+        "all-allergens": {
+          "Simple Options": [
+            { name:"Plain Greens (oil & vinegar)", desc:"Mixed greens with oil & vinegar dressing", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Whole Apple", desc:"Fresh apple", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Drinks":[
+            { name:"Water", desc:"Bottled water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ]
+        }
+      },
+
+      "starbucks": {
+        "wheat-dairy": {
+          "Drinks (caffeine-free preference implied)": [
+            { name:"Herbal (Caffeine-free) Tea", desc:"Chamomile and other herbal options — verify flavor additives", tags:["Wheat Free","Dairy Free","Caffeine Free"] },
+            { name:"Steamers (without dairy)", desc:"Ask for water or dairy-free milk if available — confirm cross-contact", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Snacks": [
+            { name:"Fresh Fruit Cup (where available)", desc:"Seasonal fruit", tags:["Wheat Free","Dairy Free","Vegan"] }
+          ]
+        },
+        "all-allergens": {
+          "Drinks & Snacks": [
+            { name:"Herbal Tea (plain)", desc:"Caffeine-free herbal tea", tags:["GF","DF","Corn Free","Nut Free","Soy Free","Caffeine Free"] },
+            { name:"Fresh Fruit Cup", desc:"Seasonal fruit", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ]
+        }
+      },
+
+      "olive-garden": {
+        "wheat-dairy": {
+          "Entrees": [
+            { name:"Herb-Grilled Salmon (no butter)", desc:"Grilled salmon request no butter or creamy sauce", tags:["Wheat Free","Dairy Free"] },
+            { name:"Grilled Chicken (plain)", desc:"Seasoned grilled chicken breast — request no butter", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Sides": [
+            { name:"Steamed Vegetables", desc:"Seasonal veg — request no butter", tags:["Wheat Free","Dairy Free","Vegan"] }
+          ],
+          "Drinks":[{ name:"Water", desc:"Bottled or tap water", tags:["Wheat Free","Dairy Free"] }]
+        },
+        "all-allergens": {
+          "Options":[
+            { name:"Plain Grilled Chicken", desc:"No butter/seasoning", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Steamed Broccoli (plain)", desc:"No butter", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Drinks":[{ name:"Water", desc:"Bottled water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }]
+        }
+      },
+
+      "mcdonalds": {
+        "wheat-dairy": {
+          "Breakfast": [
+            { name:"Scrambled Egg Patty (no butter)", desc:"Plain egg patty — request no butter or butter spray", tags:["Wheat Free","Dairy Free","Caffeine Free"] }
+          ],
+          "Proteins": [
+            { name:"Hamburger Patty (no bun/no cheese)", desc:"Plain beef patty — request no bun/no cheese", tags:["Wheat Free","Dairy Free","Caffeine Free"] }
+          ],
+          "Sides": [
+            { name:"Apple Slices (kids pack)", desc:"Packaged apple slices", tags:["Wheat Free","Dairy Free","Vegan","Caffeine Free"] },
+            { name:"Side Salad (no cheese/no dressing)", desc:"Greens & veggies only", tags:["Wheat Free","Dairy Free","Caffeine Free"] }
+          ],
+          "Drinks (caffeine-free)":[
+            { name:"Bottled Water", desc:"Water", tags:["Wheat Free","Dairy Free","Caffeine Free"] },
+            { name:"Sprite", desc:"Lemon-lime soda", tags:["Wheat Free","Dairy Free","Caffeine Free"] },
+            { name:"Fanta (Orange)", desc:"Orange soda", tags:["Wheat Free","Dairy Free","Caffeine Free"] },
+            { name:"Minute Maid Lemonade", desc:"Lemonade (confirm ingredients)", tags:["Wheat Free","Dairy Free","Caffeine Free"] },
+            { name:"Bottled Orange Juice", desc:"Packaged orange juice", tags:["Wheat Free","Dairy Free","Caffeine Free"] },
+            { name:"Apple Juice (packaged)", desc:"Packaged apple juice", tags:["Wheat Free","Dairy Free","Caffeine Free"] },
+            { name:"Hi-C (where available)", desc:"Fruit punch-style beverage — check local availability", tags:["Wheat Free","Dairy Free","Caffeine Free"] },
+            { name:"Slushies (caffeine-free flavors)", desc:"Seasonal flavors — verify ingredients", tags:["Wheat Free","Dairy Free","Caffeine Free"] }
+          ]
+        },
+        "all-allergens": {
+          "Breakfast & Proteins":[
+            { name:"Scrambled Egg Patty (no butter)", desc:"Plain egg product", tags:["GF","DF","Corn Free","Nut Free","Soy Free","Caffeine Free"] },
+            { name:"Hamburger Patty (no bun/no cheese)", desc:"Beef patty by itself — request no bun", tags:["GF","DF","Corn Free","Nut Free","Soy Free","Caffeine Free"] }
+          ],
+          "Sides":[
+            { name:"Apple Slices", desc:"Packaged apples", tags:["GF","DF","Corn Free","Nut Free","Soy Free","Caffeine Free"] },
+            { name:"Side Salad (no cheese/no dressing)", desc:"Greens only", tags:["GF","DF","Corn Free","Nut Free","Soy Free","Caffeine Free"] }
+          ],
+          "Drinks":[
+            { name:"Bottled Water", desc:"Water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Sprite", desc:"Lemon-lime soda", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Minute Maid Lemonade", desc:"Lemonade", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Bottled Orange Juice", desc:"Packaged OJ", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ]
+        }
+      },
+
+      "canes": {
+        "wheat-dairy": {
+          "Proteins":[
+            { name:"Grilled Chicken (special request)", desc:"Ask if grilled chicken option available — request no breading", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Sides":[
+            { name:"Plain Coleslaw (if available without dressing)", desc:"Ask staff", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Drinks":[
+            { name:"Bottled Water", desc:"Water", tags:["Wheat Free","Dairy Free"] },
+            { name:"Lemonade", desc:"Lemonade — check ingredients", tags:["Wheat Free","Dairy Free"] }
+          ]
+        },
+        "all-allergens": {
+          "Proteins":[
+            { name:"Plain Grilled Chicken (call ahead)", desc:"Request no breading/basic prep only", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Sides":[
+            { name:"Plain Coleslaw (verify ingredients)", desc:"Confirm no dairy/soy", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Drinks":[ { name:"Water", desc:"Bottled water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] } ]
+        }
+      },
+
+      "arbys": {
+        "wheat-dairy": {
+          "Proteins":[
+            { name:"Roast Beef (no bun/no cheese)", desc:"Plain roast beef slices; request no bun & no cheese", tags:["Wheat Free","Dairy Free"] },
+            { name:"Roast Turkey (no bun/no sauce)", desc:"Plain turkey slices (where offered)", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Sides":[
+            { name:"Chopped Side Salad (no cheese/no dressing)", desc:"Greens & veggies only", tags:["Wheat Free","Dairy Free"] },
+            { name:"Apple Slices", desc:"Packaged apple slices", tags:["Wheat Free","Dairy Free","Vegan"] },
+            { name:"Applesauce Cup", desc:"Tree Top applesauce", tags:["Wheat Free","Dairy Free","Vegan"] }
+          ],
+          "Drinks":[
+            { name:"Bottled Water", desc:"Water", tags:["Wheat Free","Dairy Free"] },
+            { name:"Sprite / 7UP", desc:"Lemon-lime soda (availability may vary)", tags:["Wheat Free","Dairy Free"] },
+            { name:"Fanta / Orange Soda", desc:"Availability varies", tags:["Wheat Free","Dairy Free"] }
+          ]
+        },
+        "all-allergens": {
+          "Proteins":[
+            { name:"Roast Beef (plain)", desc:"No bun, no sauce — plain roast beef", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Turkey Slices (plain)", desc:"Plain turkey slices", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Sides":[
+            { name:"Side Salad (plain)", desc:"No cheese & no dressing", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Apple Slices", desc:"Packaged apples", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Drinks":[ { name:"Bottled Water", desc:"Water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] } ]
+        }
+      },
+
+      "taco-bell": {
+        "wheat-dairy": {
+          "Bowls / Power Menu": [
+            { name:"Power Bowl (no cheese/no sour cream/no tortilla)", desc:"Rice (where offered), beans, protein, lettuce, pico, guacamole — omit cheese & sour cream", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Beans & Sides": [
+            { name:"Black Beans (plain)", desc:"Seasoned black beans — confirm dairy-free locally", tags:["Wheat Free","Dairy Free","Vegan"] },
+            { name:"Pinto Beans (plain)", desc:"Refried beans — confirm dairy-free", tags:["Wheat Free","Dairy Free","Vegan"] }
+          ],
+          "Drinks":[{ name:"Bottled Water", desc:"Water", tags:["Wheat Free","Dairy Free"] }]
+        },
+        "all-allergens": {
+          "Options":[
+            { name:"Power Bowl (modified)", desc:"No cheese, no corn salsa, safe protein (request no sauces)", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Black Beans (plain)", desc:"Confirm ingredients", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Drinks":[{ name:"Water", desc:"Bottled water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }]
+        }
+      },
+
+      "wendys": {
+        "wheat-dairy": {
+          "Salads (modified)": [
+            { name:"Apple Pecan Salad (no cheese/no pecans)", desc:"Greens, apples, dried cranberries, chicken — omit cheese & pecans", tags:["Wheat Free","Dairy Free"] },
+            { name:"Southwest Avocado Salad (no cheese/no tortilla strips)", desc:"Greens, chicken, avocado — omit cheese & tortilla strips", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Sides":[
+            { name:"Baked Potato (plain)", desc:"Plain potato no butter", tags:["Wheat Free","Dairy Free","Vegan"] },
+            { name:"Apple Slices", desc:"Packaged apple slices", tags:["Wheat Free","Dairy Free","Vegan"] }
+          ],
+          "Drinks":[ { name:"Bottled Water", desc:"Water", tags:["Wheat Free","Dairy Free"] } ]
+        },
+        "all-allergens": {
+          "Salads & Sides":[
+            { name:"Plain Baked Potato", desc:"No toppings", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Side Salad (no dressing)", desc:"Greens & veggies only", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Drinks":[ { name:"Water", desc:"Bottled water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] } ]
+        }
+      },
+
+      "five-guys": {
+        "wheat-dairy": {
+          "Burgers (bunless)": [
+            { name:"Bunless Burger (no cheese)", desc:"Beef patty in a bowl — request no bun & no cheese", tags:["Wheat Free","Dairy Free"] },
+            { name:"Little Bunless Burger", desc:"Single patty without bun", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Sides": [
+            { name:"Fries (hand-cut)", desc:"Fried in peanut oil — check peanut policy & cross-contact", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Drinks":[{ name:"Bottled Water", desc:"Water", tags:["Wheat Free","Dairy Free"] }]
+        },
+        "all-allergens": {
+          "Proteins":[ { name:"Plain Patty (no bun/no cheese)", desc:"Beef patty only", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] } ],
+          "Sides":[ { name:"Fries (confirm cross-contact)", desc:"Confirm location fryer policy", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] } ],
+          "Drinks":[{ name:"Water", desc:"Bottled water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }]
+        }
+      },
+
+      "panda-express": {
+        "wheat-dairy": {
+          "Entrées":[ { name:"Super Greens", desc:"Broccoli, kale, cabbage stir-fry — typically dairy/wheat-free", tags:["Wheat Free","Dairy Free","Vegan"] } ],
+          "Sides":[ { name:"White Steamed Rice", desc:"Plain steamed rice", tags:["Wheat Free","Dairy Free","Vegan"] } ],
+          "Drinks":[ { name:"Bottled Water", desc:"Water", tags:["Wheat Free","Dairy Free"] } ]
+        },
+        "all-allergens": {
+          "Options":[
+            { name:"White Steamed Rice", desc:"Plain rice", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Super Greens (plain)", desc:"Steamed vegetables", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Drinks":[ { name:"Water", desc:"Bottled water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] } ]
+        }
+      },
+
+      "pizza-hut": {
+        "wheat-dairy": {
+          "Sides & Salads":[
+            { name:"Plain Wings (no sauce/no breading)", desc:"Order plain wings — confirm no breading or dairy-based seasonings", tags:["Wheat Free","Dairy Free"] },
+            { name:"Garden Salad (no cheese/no croutons/no dressing)", desc:"Greens only", tags:["Wheat Free","Dairy Free","Vegan"] }
+          ],
+          "Drinks":[{ name:"Bottled Water", desc:"Water", tags:["Wheat Free","Dairy Free"] }]
+        },
+        "all-allergens": {
+          "Sides":[
+            { name:"Plain Wings (no breading/no sauce)", desc:"Confirm prep method", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Garden Salad (plain)", desc:"No cheese, croutons, dressing", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Drinks":[{ name:"Bottled Water", desc:"Water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }]
+        }
+      },
+
+      "outback": {
+        "wheat-dairy": {
+          "Steaks":[
+            { name:"Sirloin (plain)", desc:"Request no butter/seasoning", tags:["Wheat Free","Dairy Free"] },
+            { name:"Victoria Filet (plain)", desc:"Request no butter", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Sides":[
+            { name:"Baked Potato (plain)", desc:"No butter or sour cream", tags:["Wheat Free","Dairy Free","Vegan"] },
+            { name:"Steamed Vegetables (no butter)", desc:"Seasonal veg", tags:["Wheat Free","Dairy Free","Vegan"] }
+          ],
+          "Drinks":[{ name:"Bottled Water", desc:"Water", tags:["Wheat Free","Dairy Free"] }]
+        },
+        "all-allergens": {
+          "Steaks & Sides":[
+            { name:"Sirloin (plain)", desc:"No butter or seasoning", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Baked Potato (plain)", desc:"No toppings", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Drinks":[{ name:"Water", desc:"Bottled water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }]
+        }
+      },
+
+      "red-lobster": {
+        "wheat-dairy": {
+          "Seafood":[
+            { name:"Wood-Grilled Salmon (no butter)", desc:"Request no butter or butter sauce", tags:["Wheat Free","Dairy Free"] },
+            { name:"Steamed Lobster (plain)", desc:"Steamed plain — request no butter", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Sides":[
+            { name:"Steamed Broccoli", desc:"Plain steamed broccoli", tags:["Wheat Free","Dairy Free","Vegan"] },
+            { name:"Baked Potato (plain)", desc:"No butter/sour cream", tags:["Wheat Free","Dairy Free"] },
+            { name:"Garden Salad (no cheese/no croutons/no dressing)", desc:"Greens only", tags:["Wheat Free","Dairy Free","Vegan"] }
+          ],
+          "Drinks":[{ name:"Water", desc:"Bottled water", tags:["Wheat Free","Dairy Free"] }]
+        },
+        "all-allergens": {
+          "Seafood & Sides":[
+            { name:"Grilled Salmon (plain)", desc:"No butter/seasoning", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Steamed Lobster (plain)", desc:"No butter", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Drinks":[{ name:"Water", desc:"Bottled water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }]
+        }
+      },
+
+      "fuzzys": {
+        "wheat-dairy": {
+          "Get It Started / Apps": [
+            { name:"Chips & Guacamole (omit queso)", desc:"House tortilla chips and guacamole — chips fried in oil that may contain soy; check cross-contact", tags:["Wheat Free","Dairy Free"] },
+            { name:"Chips (plain)", desc:"Tortilla chips — often fried in shared fryers; confirm with location", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Breakfast (served all day in many OKC/Moore spots)": [
+            { name:"Breakfast Taco — Egg & Potato (corn tortilla)", desc:"Egg & potato inside corn tortilla — request no cheese", tags:["Wheat Free","Dairy Free"] },
+            { name:"Breakfast Taco — Egg & Chorizo (corn tortilla)", desc:"Egg & chorizo; omit cheese if present", tags:["Wheat Free","Dairy Free"] },
+            { name:"Breakfast Burrito (no cheese, no flour tortilla)", desc:"Request bowl option or corn tortillas where possible — confirm ingredients", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Tacos (corn tortillas) — request no cheese/sour cream": [
+            { name:"Grilled Chicken Taco (corn)", desc:"Grilled chicken, pico de gallo, shredded lettuce — no cheese or sour cream", tags:["Wheat Free","Dairy Free"] },
+            { name:"Grilled Steak Taco (corn)", desc:"Grilled steak, pico, cilantro — no cheese/sour cream", tags:["Wheat Free","Dairy Free"] },
+            { name:"Carnitas Taco (corn)", desc:"Slow-cooked pork, pico — no cheese", tags:["Wheat Free","Dairy Free"] },
+            { name:"Grilled Shrimp Taco (corn)", desc:"Grilled shrimp, pico — no cheese/sauce", tags:["Wheat Free","Dairy Free"] },
+            { name:"Fish Taco (grilled, corn)", desc:"Grilled fish (not battered) — order without sauce/cheese", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Nachos (modified)": [
+            { name:"Nachos (no cheese/no queso)", desc:"Tortilla chips with protein & pico — request no cheese/queso; chips likely fried in shared oil", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Bowls & Salads": [
+            { name:"Grilled Chicken Bowl (no cheese)", desc:"Rice, grilled chicken, pico, lettuce, guacamole — omit cheese and creamy dressings", tags:["Wheat Free","Dairy Free"] },
+            { name:"Steak Bowl (no cheese)", desc:"Rice, steak, pico, lettuce", tags:["Wheat Free","Dairy Free"] },
+            { name:"Grilled Chicken Salad (no cheese/no dressing)", desc:"Lettuce, grilled chicken, pico, guacamole — request no dressing/cheese", tags:["Wheat Free","Dairy Free"] },
+            { name:"Shrimp Salad (no cheese/no dressing)", desc:"Lettuce, grilled shrimp, pico, guacamole — request no dressing", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Sides & Toppings": [
+            { name:"Pico de Gallo", desc:"Tomato, onion, cilantro — request no corn if you need corn-free", tags:["Wheat Free","Dairy Free","Vegan"] },
+            { name:"Guacamole", desc:"Avocado, lime, salt", tags:["Wheat Free","Dairy Free","Vegan"] },
+            { name:"Cilantro-Lime Rice", desc:"Seasoned rice", tags:["Wheat Free","Dairy Free","Vegan"] },
+            { name:"Black Beans", desc:"Seasoned black beans — verify ingredients for lard/animal fat if that matters", tags:["Wheat Free","Dairy Free","Vegan"] },
+            { name:"Refried Beans (where offered)", desc:"Confirm recipe", tags:["Wheat Free","Dairy Free"] }
+          ],
+          "Drinks": [
+            { name:"Bottled Water", desc:"Water", tags:["Wheat Free","Dairy Free","Caffeine Free"] },
+            { name:"Minute Maid Lemonade", desc:"Lemonade — verify no dairy additives", tags:["Wheat Free","Dairy Free","Caffeine Free"] },
+            { name:"Bottled Orange Juice", desc:"Packaged OJ", tags:["Wheat Free","Dairy Free","Caffeine Free"] },
+            { name:"Unsweetened Iced Tea (contains caffeine)", desc:"Contains caffeine — avoid if caffeine-free required", tags:["Wheat Free","Dairy Free"] }
+          ]
+        },
+        "all-allergens": {
+          "Apps & Chips (corn/soy risk)": [
+            { name:"Chips (bowl) — ask about fryer oil", desc:"Tortilla chips — if fryer uses soy oil, not safe; request details", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Breakfast": [
+            { name:"Breakfast Taco — Egg & Potato (bowl option/no tortilla)", desc:"Egg & potato in a bowl — no cheese", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Tacos / Bowls / Salads": [
+            { name:"Grilled Chicken Bowl (no cheese/no corn salsa)", desc:"Rice, plain grilled chicken, pico (no corn), lettuce — request no cheese", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Grilled Steak Salad (no cheese/no dressing)", desc:"Salad with steak, pico & guac — ask to omit cheese/dressing", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Carnitas Bowl (no corn)", desc:"Rice, carnitas, pico (no corn), lettuce", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Sides & Toppings": [
+            { name:"Pico de Gallo (no corn)", desc:"Fresh tomato/onion/cilantro (no corn)", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Guacamole (plain)", desc:"Plain guacamole — confirm no additives", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Black Beans (confirm no corn/soy additives)", desc:"Confirm ingredients", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ],
+          "Drinks":[
+            { name:"Bottled Water", desc:"Water", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] },
+            { name:"Minute Maid Lemonade (verify)", desc:"Verify no cross-ingredient issues", tags:["GF","DF","Corn Free","Nut Free","Soy Free"] }
+          ]
+        }
+      }
+    };
+
+    function prettyName(key){
+      const map = {
+        'fuzzys': "Fuzzy's Taco Shop",
+        'mcdonalds': "McDonald's",
+        'chick-fil-a': "Chick-fil-A",
+        'five-guys': "Five Guys",
+        'panda-express': "Panda Express",
+        'pizza-hut': "Pizza Hut",
+        'olive-garden': "Olive Garden",
+        'red-lobster': "Red Lobster",
+        'canes': "Raising Cane's",
+        'arbys': "Arby's",
+        'taco-bell': "Taco Bell"
+      };
+      return map[key] || key.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+    }
+
+    function showMenu(key){
+      currentRestaurant = key;
+      const disp = document.getElementById('menu-display');
+      disp.innerHTML = '';
+      const rest = menus[key];
+      if(!rest || !rest[currentFilter]){
+        disp.innerHTML = '<p>No safe items listed for this restaurant under this filter (or location-specific items vary). Please confirm with staff.</p>';
+        return;
+      }
+      const header = document.createElement('div');
+      header.className = 'rest-header';
+      header.textContent = prettyName(key);
+      disp.appendChild(header);
+
+      const categories = rest[currentFilter];
+      for(const [cat, items] of Object.entries(categories)){
+        if(cat === 'Notes' || cat === 'note' || typeof items === 'string'){
+          const noteDiv = document.createElement('div');
+          noteDiv.className = 'note';
+          noteDiv.textContent = items;
+          disp.appendChild(noteDiv);
+          continue;
+        }
+        const catEl = document.createElement('div');
+        catEl.className = 'category-title';
+        catEl.textContent = cat;
+        disp.appendChild(catEl);
+
+        if(Array.isArray(items)){
+          items.forEach(it => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'menu-item';
+            itemDiv.innerHTML = `<div class="item-name">${it.name}</div><div class="item-desc">${it.desc}</div>`;
+            const tagsWrap = document.createElement('div');
+            (it.tags || []).forEach(t => {
+              const s = document.createElement('span');
+              s.className = 'allergen-tag';
+              s.textContent = t;
+              tagsWrap.appendChild(s);
+            });
+            itemDiv.appendChild(tagsWrap);
+            disp.appendChild(itemDiv);
+          });
+        } else if (typeof items === 'string') {
+          const noteDiv = document.createElement('div');
+          noteDiv.className = 'note';
+          noteDiv.textContent = items;
+          disp.appendChild(noteDiv);
+        }
+      }
+      document.getElementById('search-box').value = '';
+    }
+
+    function searchMenu(){
+      const q = document.getElementById('search-box').value.toLowerCase().trim();
+      const out = document.getElementById('menu-display');
+      out.innerHTML = '';
+      if(q.length < 2){
+        if(currentRestaurant) showMenu(currentRestaurant);
+        else out.innerHTML = '<p>Type 2+ characters to search across menus.</p>';
+        return;
+      }
+      let found = false;
+      for(const rk in menus){
+        const restObj = menus[rk];
+        if(!restObj[currentFilter]) continue;
+        let printedHeader = false;
+        const cats = restObj[currentFilter];
+        for(const cat in cats){
+          const list = cats[cat];
+          if(Array.isArray(list)){
+            list.forEach(item => {
+              if((item.name && item.name.toLowerCase().includes(q)) || (item.desc && item.desc.toLowerCase().includes(q))){
+                if(!printedHeader){
+                  const header = document.createElement('div');
+                  header.className = 'rest-header';
+                  header.textContent = prettyName(rk);
+                  out.appendChild(header);
+                  printedHeader = true;
+                }
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'menu-item';
+                itemDiv.innerHTML = `<div class="item-name">${item.name}</div><div class="item-desc">${item.desc}</div>`;
+                const tagsWrap = document.createElement('div');
+                (item.tags || []).forEach(t => {
+                  const s = document.createElement('span');
+                  s.className = 'allergen-tag';
+                  s.textContent = t;
+                  tagsWrap.appendChild(s);
+                });
+                itemDiv.appendChild(tagsWrap);
+                out.appendChild(itemDiv);
+                found = true;
+              }
+            });
+          } else if (typeof list === 'string'){
+            if(list.toLowerCase().includes(q)){
+              if(!printedHeader){
+                const header = document.createElement('div');
+                header.className = 'rest-header';
+                header.textContent = prettyName(rk);
+                out.appendChild(header);
+                printedHeader = true;
+              }
+              const noteDiv = document.createElement('div');
+              noteDiv.className = 'note';
+              noteDiv.textContent = list;
+              out.appendChild(noteDiv);
+              found = true;
+            }
+          }
+        }
+      }
+      if(!found) out.innerHTML = '<p>No matches found under this filter. Try different keywords or check a specific restaurant.</p>';
+    }
+
+    document.getElementById('filter-wd').classList.add('filter-active');
+    document.getElementById('menu-display').innerHTML = '<p> Select the Allergens </p>';
+  </script>
+</body>
+</html>
